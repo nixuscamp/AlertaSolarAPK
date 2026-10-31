@@ -115,10 +115,10 @@
         </p>
       </div>
 
-      <form id="formOnboarding" class="space-y-3.5 pt-2">
+      <div class="space-y-3.5 pt-2">
         <div>
           <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-300 mb-1">Nombre de la Empresa</label>
-          <input type="text" id="inputEmpresaNombre" required placeholder="Ej: BAVARIA / POSTOBON / NIXUS" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-3 text-white text-sm focus:outline-none focus:border-teal-400 transition placeholder:text-slate-600">
+          <input type="text" id="inputEmpresaNombre" placeholder="Ej: BAVARIA / POSTOBON / NIXUS" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-3 text-white text-sm focus:outline-none focus:border-teal-400 transition placeholder:text-slate-600">
         </div>
 
         <div class="bg-slate-950/80 border border-slate-800 rounded-xl p-3 text-[10px] text-slate-400 leading-relaxed flex items-start gap-2">
@@ -126,11 +126,11 @@
           <span><strong>Protección de Datos (Ley 1581/2012):</strong> Se ha asignado un ID anónimo a tu dispositivo[cite: 12]. No recolectamos nombres ni cédulas personales[cite: 12]. Funciona incluso sin internet[cite: 12].</span>
         </div>
 
-        <button type="submit" id="btnIngresarApp" class="w-full py-3.5 rounded-xl font-black text-xs sm:text-sm bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-400 hover:to-cyan-400 text-slate-950 shadow-lg shadow-teal-500/25 transition active:scale-95 flex items-center justify-center gap-2">
+        <button type="button" id="btnComenzarJornada" class="w-full py-3.5 rounded-xl font-black text-xs sm:text-sm bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-400 hover:to-cyan-400 text-slate-950 shadow-lg shadow-teal-500/25 transition active:scale-95 flex items-center justify-center gap-2 cursor-pointer">
           <span>Comenzar Jornada</span>
           <span>➔</span>
         </button>
-      </form>
+      </div>
     </div>
   </div>
 
@@ -304,7 +304,7 @@
       </div>
     </section>
 
-    <!-- TAB 2: SEMÁFORO DE HIDRATACIÓN (CON DISCLAIMER MÉDICO Y SG-SST) -->
+    <!-- TAB 2: SEMÁFORO DE HIDRATACIÓN (CON DISCLAIMER MÉDICO OFICIAL) -->
     <section id="tab-armstrong" class="tab-content hidden space-y-4">
       <div class="bg-slate-900 rounded-2xl sm:rounded-3xl border border-slate-800 p-4 sm:p-7 space-y-5">
         <div>
@@ -564,7 +564,7 @@
             </thead>
             <tbody id="auditTableBody" class="divide-y divide-slate-800/60 font-mono text-[11px]">
               <tr>
-                <td colspan="4" class="p-4 text-center text-slate-500 font-sans">No hay eventos registrados en la sesión actual.[cite: 12]</td>
+                <td colspan="4" class="p-4 text-center text-slate-500 font-sans">No hay registros aún en la sesión actual[cite: 12].</td>
               </tr>
             </tbody>
           </table>
@@ -584,7 +584,7 @@
         <span class="text-[10px] uppercase font-extrabold tracking-widest text-amber-400">¡Alerta Térmica SG-SST!</span>
         <h3 class="text-xl sm:text-2xl font-black text-white mt-0.5">Pausa de Enfriamiento e Hidratación</h3>
         <p class="text-xs text-slate-300 mt-1.5 leading-relaxed">
-          Has completado tu ciclo laboral continuo. Tómate <strong class="text-white">3 minutos</strong> de descanso térmico[cite: 12] bajo sombra o ventilación para regular tu temperatura.
+          Has completado tu ciclo laboral continuo. Tómate <strong class="text-white">3 minutos</strong> de descanso térmico bajo sombra o ventilación para regular tu temperatura[cite: 12].
         </p>
       </div>
 
@@ -816,13 +816,13 @@
     const sfx = new OSHAudioEffects();
 
     const modalOnboarding = document.getElementById('modalOnboarding');
-    const formOnboarding = document.getElementById('formOnboarding');
+    const btnComenzarJornada = document.getElementById('btnComenzarJornada');
     const inputEmpresaNombre = document.getElementById('inputEmpresaNombre');
     const badgeEmpresaHeader = document.getElementById('badgeEmpresaHeader');
     const badgeIdSesionHeader = document.getElementById('badgeIdSesionHeader');
 
     function inicializarSesion() {
-      badgeIdSesionHeader.textContent = `ID: ${idSesionActiva}`;[cite: 12]
+      badgeIdSesionHeader.textContent = `ID: ${idSesionActiva}`[cite: 12];
       if (empresaActual) {
         modalOnboarding.classList.add('hidden');
         badgeEmpresaHeader.textContent = empresaActual;
@@ -832,10 +832,12 @@
       }
     }
 
-    formOnboarding.addEventListener('submit', (e) => {
-      e.preventDefault();
+    btnComenzarJornada.addEventListener('click', () => {
       const val = inputEmpresaNombre.value.trim();
-      if (!val) return;
+      if (!val) {
+        alert("Por favor ingresa el nombre de la empresa para continuar.");
+        return;
+      }
 
       empresaActual = val;
       sessionStorage.setItem('nixus_empresa_activa', empresaActual);
@@ -1205,7 +1207,7 @@
       const dosePerPause = Math.round(totalMl / pauseCount);
 
       document.getElementById('prescribedLiters').textContent = `${totalLiters} L`;
-      document.getElementById('prescribedGlasses').textContent = `Aprox. ${glasses} vasos de 250ml en 8h`;
+      document.getElementById('prescribedGlasses').textContent = `Aprox. ${glasses} vasos de 250ml[cite: 12]`;
       document.getElementById('prescribedInterval').textContent = `${intervalMins} min`;
       document.getElementById('prescribedDose').textContent = `${dosePerPause} ml`;
     }
@@ -1293,7 +1295,7 @@
     document.getElementById('btnCopyReport').addEventListener('click', () => {
       const today = new Date().toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' });
       let r = `REGISTRO DE AUTOCONTROL - PAUSAS TÉRMICAS SG-SST\n`;
-      r += `Sesión ID: ${idSesionActiva}\n`;
+      r += `Sesión ID: ${idSesionActiva}[cite: 12]\n`;
       r += `Empresa: ${empresaActual || 'No especificada'}\n`;
       r += `Campaña Fenómeno de El Niño - NIXUS Capital Humano\n`;
       r += `Fecha: ${today}\n`;
