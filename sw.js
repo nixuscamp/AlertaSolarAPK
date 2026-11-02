@@ -3,7 +3,7 @@
  * Service Worker: Gestión de Caché Offline para Campaña Alerta Solar
  */
 
-const CACHE_NAME = 'nixus-alerta-solar-v11';
+const CACHE_NAME = 'nixus-alerta-solar-v12';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
