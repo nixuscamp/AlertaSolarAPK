@@ -5,6 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Protocolo de Pausas Térmicas e Hidratación - NIXUS SG-SST</title>
   
+  <!-- Configuración PWA / Standalone -->
+  <link rel="manifest" href="./manifest.json">
+  <meta name="theme-color" content="#0f766e">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Alerta Solar">
+  <link rel="apple-touch-icon" href="./icon-512.png">
+
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   
@@ -13,11 +21,10 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
   
-  <!-- QRCode.js Library with Fallback Script -->
+  <!-- QRCode.js Library -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
   <style>
-    /* Standalone styles guaranteeing zero-breakage on mobile browsers and WebViews */
     * {
       box-sizing: border-box;
       -webkit-tap-highlight-color: transparent;
@@ -31,7 +38,6 @@
       overflow-x: hidden;
       width: 100%;
     }
-    /* Fixed constraint on all SVGs to prevent unstyled layout explosion */
     svg {
       max-width: 100%;
       height: auto;
@@ -60,7 +66,6 @@
     .active-thermal-alarm {
       animation: alertGlow 1.6s infinite ease-in-out;
     }
-    /* Smooth mobile scrollable tabs */
     .scrollbar-none::-webkit-scrollbar {
       display: none;
     }
@@ -95,33 +100,65 @@
 </head>
 <body class="min-h-screen flex flex-col antialiased selection:bg-teal-500 selection:text-white pb-12">
 
+  <!-- MODAL DE ONBOARDING: INGRESO DE EMPRESA (100% BLINDADO) -->
+  <div id="modalOnboarding" class="fixed inset-0 z-50 bg-slate-950/95 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-teal-500/40 rounded-3xl max-w-md w-full p-6 sm:p-7 space-y-4 shadow-2xl relative">
+      <div class="w-16 h-16 mx-auto rounded-2xl bg-white p-2 flex items-center justify-center shadow-lg shadow-teal-500/20">
+        <img src="https://lh3.googleusercontent.com/d/1nSK5JUm8IDFsgXvGYkJfgwtErm3rzPsC" alt="Logo Nixus" class="w-full h-full object-contain">
+      </div>
+
+      <div class="text-center space-y-1">
+        <span class="text-[10px] uppercase font-black tracking-widest text-teal-400">NIXUS CAPITAL HUMANO • SG-SST</span>
+        <h2 class="text-xl sm:text-2xl font-black text-white">Alerta Solar: Pausas Térmicas</h2>
+        <p class="text-xs text-slate-300 leading-relaxed">
+          Ingresa el nombre o razón social de tu empresa para iniciar tu sesión operativa de autocuidado.
+        </p>
+      </div>
+
+      <div class="space-y-3.5 pt-2">
+        <div>
+          <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-300 mb-1">Nombre de la Empresa</label>
+          <input type="text" id="inputEmpresaNombre" placeholder="Ej: BAVARIA / POSTOBON / NIXUS" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3.5 py-3 text-white text-sm focus:outline-none focus:border-teal-400 transition placeholder:text-slate-600">
+        </div>
+
+        <div class="bg-slate-950/80 border border-slate-800 rounded-xl p-3 text-[10px] text-slate-400 leading-relaxed flex items-start gap-2">
+          <span class="text-sm">🔒</span>
+          <span><strong>Protección de Datos (Ley 1581/2012):</strong> ID anónimo asignado al dispositivo. No recolectamos nombres ni cédulas personales. Funciona incluso sin internet.</span>
+        </div>
+
+        <button type="button" id="btnComenzarJornada" class="w-full py-3.5 rounded-xl font-black text-xs sm:text-sm bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-400 hover:to-cyan-400 text-slate-950 shadow-lg shadow-teal-500/25 transition active:scale-95 flex items-center justify-center gap-2 cursor-pointer">
+          <span>Comenzar Jornada</span>
+          <span>➔</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- HEADER -->
   <header class="sticky top-0 z-40 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 px-3 py-2.5 sm:px-6 sm:py-3">
     <div class="max-w-6xl mx-auto flex items-center justify-between gap-2">
-      
-      <!-- Brand & Title Block -->
       <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
-        <div class="icon-box-fixed rounded-xl bg-gradient-to-tr from-cyan-600 to-teal-500 shadow-md shadow-cyan-500/20 text-white p-2">
-          <!-- Constrained SVG -->
-          <svg style="width:22px;height:22px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path>
-          </svg>
+        <div class="icon-box-fixed rounded-xl bg-white p-1.5 shadow-md shadow-cyan-500/20">
+          <img src="https://lh3.googleusercontent.com/d/1nSK5JUm8IDFsgXvGYkJfgwtErm3rzPsC" alt="Logo Nixus" class="w-full h-full object-contain">
         </div>
         <div class="truncate">
           <div class="flex items-center gap-1.5 flex-wrap">
             <span class="font-extrabold text-sm sm:text-base tracking-tight text-white">NIXUS SG-SST</span>
-            <span class="text-[9px] uppercase font-bold tracking-wider bg-teal-500/20 text-teal-300 px-1.5 py-0.5 rounded border border-teal-500/30">
-              Pausas Térmicas
+            <span id="badgeEmpresaHeader" class="text-[9px] uppercase font-bold tracking-wider bg-teal-500/20 text-teal-300 px-1.5 py-0.5 rounded border border-teal-500/30 truncate max-w-[130px]">
+              Empresa
+            </span>
+            <span id="badgeIdSesionHeader" class="text-[9px] font-mono text-slate-400 bg-slate-800 px-1.5 py-0.5 rounded border border-slate-700 hidden sm:inline">
+              ID: ---
             </span>
           </div>
           <p class="text-[11px] text-slate-400 truncate">Control de Estrés Térmico • Res. 2400/79</p>
         </div>
       </div>
 
-      <!-- Action Badges -->
       <div class="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
         <button id="btnToggleAudio" type="button" class="px-2.5 py-1.5 rounded-lg text-[11px] font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 flex items-center gap-1.5 transition">
           <span id="audioStatusDot" class="w-2 h-2 rounded-full bg-teal-400 animate-pulse"></span>
-          <span id="audioStatusText" class="hidden sm:inline">Alarma Sonora Activa</span>
+          <span id="audioStatusText" class="hidden sm:inline">Alarma Sonora</span>
           <span class="sm:hidden">🔊</span>
         </button>
         <button id="btnSosModal" type="button" class="px-2.5 py-1.5 rounded-lg text-[11px] font-bold bg-rose-600 hover:bg-rose-500 text-white shadow-md shadow-rose-600/30 flex items-center gap-1 transition">
@@ -132,34 +169,33 @@
     </div>
   </header>
 
+  <!-- CONTENIDO PRINCIPAL -->
   <main class="max-w-6xl mx-auto px-3 sm:px-6 py-4 flex-1 w-full space-y-5">
     
-    <!-- Scrollable Tab Buttons on Mobile -->
+    <!-- Pestañas de Navegación -->
     <nav class="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-1.5 pt-0.5 scrollbar-none w-full -mx-1 px-1">
-      <button data-tab="tab-temporizador" class="tab-btn active px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap bg-teal-600 text-white shadow-md shadow-teal-600/30 transition flex items-center gap-1.5 flex-shrink-0">
-        <span>⏱️</span> Reloj Térmico
+      <button data-tab="tab-temporizador" data-module-name="Reloj Térmico" class="tab-btn active px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap bg-teal-600 text-white shadow-md shadow-teal-600/30 transition flex items-center gap-1.5 flex-shrink-0">
+        <span>⏱</span> Reloj Térmico
       </button>
-      <button data-tab="tab-armstrong" class="tab-btn px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap bg-slate-800/90 text-slate-300 border border-slate-700/70 transition flex items-center gap-1.5 flex-shrink-0">
+      <button data-tab="tab-armstrong" data-module-name="Semáforo de Hidratación" class="tab-btn px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap bg-slate-800/90 text-slate-300 border border-slate-700/70 transition flex items-center gap-1.5 flex-shrink-0">
         <span>💧</span> Semáforo de Hidratación
       </button>
-      <button data-tab="tab-calculadora" class="tab-btn px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap bg-slate-800/90 text-slate-300 border border-slate-700/70 transition flex items-center gap-1.5 flex-shrink-0">
+      <button data-tab="tab-calculadora" data-module-name="Calculadora Hídrica" class="tab-btn px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap bg-slate-800/90 text-slate-300 border border-slate-700/70 transition flex items-center gap-1.5 flex-shrink-0">
         <span>⚖️</span> Dosis por Puesto
       </button>
-      <button data-tab="tab-qr" class="tab-btn px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap bg-slate-800/90 text-slate-300 border border-slate-700/70 transition flex items-center gap-1.5 flex-shrink-0">
+      <button data-tab="tab-qr" data-module-name="Afiche QR" class="tab-btn px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap bg-slate-800/90 text-slate-300 border border-slate-700/70 transition flex items-center gap-1.5 flex-shrink-0">
         <span>📲</span> Afiche QR Planta
       </button>
-      <button data-tab="tab-auditoria" class="tab-btn px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap bg-slate-800/90 text-slate-300 border border-slate-700/70 transition flex items-center gap-1.5 flex-shrink-0">
+      <button data-tab="tab-auditoria" data-module-name="Registro Local" class="tab-btn px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap bg-slate-800/90 text-slate-300 border border-slate-700/70 transition flex items-center gap-1.5 flex-shrink-0">
         <span>📋</span> Autocontrol Local
       </button>
     </nav>
 
+    <!-- TAB 1: RELOJ TÉRMICO -->
     <section id="tab-temporizador" class="tab-content space-y-4">
-      
-      <!-- Shift Main Container -->
       <div class="rounded-2xl sm:rounded-3xl bg-slate-900 border border-slate-800 p-4 sm:p-7 shadow-xl">
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
           
-          <!-- Left: Timer & Controls -->
           <div class="lg:col-span-7 flex flex-col items-center sm:items-start text-center sm:text-left space-y-3">
             <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-teal-500/10 border border-teal-500/30 text-teal-400 text-[11px] font-semibold tracking-wide">
               <span class="w-2 h-2 rounded-full bg-teal-400 animate-pulse"></span>
@@ -170,10 +206,9 @@
               Pausa Térmica Programada
             </h1>
             <p class="text-slate-300 text-xs sm:text-sm max-w-lg leading-relaxed">
-              El estrés calórico reduce la agilidad psicomotriz e incrementa accidentes laborales. Al cumplirse el intervalo, detén labores durante <strong class="text-white">3 minutos</strong> para reposición hídrica y disipación térmica.
+              El estrés calórico reduce la agilidad psicomotriz. Al cumplirse el intervalo, detén labores durante <strong class="text-white">3 minutos</strong> para reposición hídrica y disipación térmica.
             </p>
 
-            <!-- Digital Clock Display Card -->
             <div class="w-full max-w-sm bg-slate-950 rounded-2xl border border-slate-800 p-5 flex flex-col items-center justify-center shadow-inner">
               <span id="shiftStatusLabel" class="text-[11px] uppercase font-bold text-amber-400 tracking-wider mb-1">
                 Labor Activa en Curso
@@ -182,19 +217,16 @@
                 25:00
               </div>
               
-              <!-- Progress Bar -->
               <div class="w-full bg-slate-800 h-2.5 rounded-full mt-3 overflow-hidden">
                 <div id="timerProgress" class="bg-gradient-to-r from-teal-400 to-cyan-400 h-full w-full transition-all duration-1000"></div>
               </div>
 
-              <!-- Cycle Details -->
               <div class="flex items-center justify-between w-full mt-3 text-[11px] text-slate-400 font-medium">
                 <span id="currentCycleText">Bloque Operativo 1</span>
                 <span id="nextBreakText">Próxima pausa en 25 min</span>
               </div>
             </div>
 
-            <!-- Main Interactive Controls -->
             <div class="flex flex-wrap gap-2 pt-1 justify-center sm:justify-start w-full">
               <button id="btnStartPause" type="button" class="flex-1 sm:flex-initial px-4 py-3 rounded-xl font-bold text-xs sm:text-sm bg-teal-500 hover:bg-teal-400 text-slate-950 shadow-lg shadow-teal-500/20 flex items-center justify-center gap-2 transition active:scale-95">
                 <span id="playIcon">▶</span>
@@ -208,7 +240,6 @@
               </button>
             </div>
 
-            <!-- Interval Selector based on Ambient WBGT / El Niño -->
             <div class="w-full pt-2">
               <span class="text-[11px] text-slate-400 block mb-1.5 text-center sm:text-left">Intervalo de pausa según severidad térmica:</span>
               <div class="grid grid-cols-3 gap-1.5 max-w-sm">
@@ -231,9 +262,7 @@
               <h3 class="text-base sm:text-lg font-black text-white">Nivel Hídrico del Turno</h3>
             </div>
 
-            <!-- Responsive Flask Visual -->
             <div class="relative w-28 h-56 sm:w-32 sm:h-60 bg-slate-950 rounded-2xl border-4 border-slate-700 p-1 flex flex-col justify-end overflow-hidden shadow-xl">
-              <!-- Scale Indicators -->
               <div class="absolute left-1.5 top-2 bottom-2 flex flex-col justify-between text-[9px] font-mono text-slate-500 pointer-events-none select-none">
                 <span>100%</span>
                 <span>75%</span>
@@ -242,148 +271,111 @@
                 <span>0%</span>
               </div>
 
-              <!-- Fluid fill -->
               <div id="flaskLiquid" class="w-full bg-gradient-to-t from-teal-600 via-teal-400 to-cyan-300 rounded-b-xl transition-all duration-700 relative flex items-center justify-center shadow-lg shadow-teal-500/40" style="height: 35%;">
                 <div class="absolute -top-2 left-0 right-0 h-3 bg-teal-200/50 rounded-full water-wave"></div>
                 <span id="flaskPercentText" class="text-[10px] font-black text-slate-950 bg-white/90 px-1.5 py-0.5 rounded-full shadow">35%</span>
               </div>
             </div>
 
-            <!-- Volume Counter -->
             <div class="w-full flex justify-between items-center text-xs px-1">
               <span class="text-slate-400">Ingesta acumulada:</span>
               <span class="text-teal-400 font-mono font-bold"><span id="consumedMlText">750</span> / <span id="goalMlText">2200</span> ml</span>
             </div>
 
-            <!-- Quick Add Water Buttons with Touch Targets -->
             <div class="w-full grid grid-cols-3 gap-1.5">
               <button class="btn-drink p-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 active:border-teal-500 text-xs font-semibold text-slate-200 flex flex-col items-center gap-0.5 transition active:scale-95" data-amount="150">
                 <span class="text-sm">☕</span>
-                <span>+150 ml</span>
+                <span>150 ml</span>
                 <span class="text-[9px] text-slate-400">1 Sorbo</span>
               </button>
               <button class="btn-drink p-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 active:border-teal-500 text-xs font-semibold text-slate-200 flex flex-col items-center gap-0.5 transition active:scale-95" data-amount="250">
                 <span class="text-sm">🥛</span>
-                <span>+250 ml</span>
+                <span>250 ml</span>
                 <span class="text-[9px] text-slate-400">1 Vaso</span>
               </button>
               <button class="btn-drink p-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 active:border-teal-500 text-xs font-semibold text-slate-200 flex flex-col items-center gap-0.5 transition active:scale-95" data-amount="500">
                 <span class="text-sm">🍶</span>
-                <span>+500 ml</span>
+                <span>500 ml</span>
                 <span class="text-[9px] text-slate-400">1 Botilito</span>
               </button>
             </div>
           </div>
         </div>
       </div>
-
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <div class="bg-slate-900/80 rounded-2xl border border-slate-800 p-4 space-y-1.5">
-          <div class="w-7 h-7 rounded-lg bg-teal-500/10 text-teal-400 flex items-center justify-center font-bold text-xs">1</div>
-          <h4 class="font-bold text-white text-xs sm:text-sm">Pausa Activa Térmica (3 min)</h4>
-          <p class="text-[11px] text-slate-400 leading-relaxed">
-            Suspende la manipulación manual de cargas o la atención sostenida. Trasládate a una zona de sombra o ventilación forzada para permitir la disipación del calor metabólico.
-          </p>
-        </div>
-        <div class="bg-slate-900/80 rounded-2xl border border-slate-800 p-4 space-y-1.5">
-          <div class="w-7 h-7 rounded-lg bg-cyan-500/10 text-cyan-400 flex items-center justify-center font-bold text-xs">2</div>
-          <h4 class="font-bold text-white text-xs sm:text-sm">Ingesta a Sorbos Lentos</h4>
-          <p class="text-[11px] text-slate-400 leading-relaxed">
-            Bebe de 150 ml a 200 ml de agua fresca (ideal entre 15 °C y 20 °C). Evita líquidos escarchados que generen vasoconstricción gástrica o espasmos estomacales.
-          </p>
-        </div>
-        <div class="bg-slate-900/80 rounded-2xl border border-slate-800 p-4 space-y-1.5">
-          <div class="w-7 h-7 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center font-bold text-xs">3</div>
-          <h4 class="font-bold text-white text-xs sm:text-sm">Enfriamiento Periférico</h4>
-          <p class="text-[11px] text-slate-400 leading-relaxed">
-            Humedece tu toalla de enfriamiento o aplica agua en la nuca, muñecas y rostro. Activa tu mini ventilador para favorecer la evaporación y estabilizar la temperatura central.
-          </p>
-        </div>
-      </div>
     </section>
 
+    <!-- TAB 2: SEMÁFORO DE HIDRATACIÓN (CON DISCLAIMER MÉDICO OFICIAL) -->
     <section id="tab-armstrong" class="tab-content hidden space-y-4">
       <div class="bg-slate-900 rounded-2xl sm:rounded-3xl border border-slate-800 p-4 sm:p-7 space-y-5">
-        
         <div>
           <span class="text-[10px] uppercase font-bold text-teal-400 tracking-wider">Herramienta Pedagógica de Autocuidado</span>
           <h2 class="text-xl sm:text-2xl font-black text-white">Semáforo de Colorimetría de la Orina</h2>
           <p class="text-xs text-slate-400 mt-1 leading-relaxed">
-            Adaptación técnica orientativa de la Escala de Deshidratación de Armstrong (validada en medicina ocupacional por la ACGIH). Permite al trabajador monitorear su estado hídrico durante la jornada.
+            Adaptación técnica orientativa de la Escala de Armstrong para automonitoreo de reposición de líquidos.
           </p>
         </div>
 
-        <!-- MEDICAL & LEGAL DISCLAIMER BOX -->
-        <div class="bg-amber-950/40 border border-amber-600/40 rounded-2xl p-3.5 sm:p-4 text-xs text-amber-200/90 flex items-start gap-3">
-          <span class="text-xl flex-shrink-0 mt-0.5">⚕️</span>
-          <div class="space-y-1">
-            <strong class="text-amber-300 font-bold block text-xs">Descargo de Responsabilidad Médica y Ocupacional:</strong>
-            <p class="text-[11px] leading-relaxed text-amber-200/80">
-              Esta escala es una <strong>guía orientativa y pedagógica</strong>, no una prueba de diagnóstico clínico ni sustituto de valoración médica. La coloración de la orina puede verse modificada por el consumo de multivitamínicos (especialmente complejo B), medicamentos, ingesta de ciertos alimentos (como remolacha) o condiciones hepato-renales preexistentes. Si tras una hidratación regular la orina permanece oscura o se presentan síntomas como fiebre, cefalea o dolor lumbar, acuda a Medicina del Trabajo o a su EPS.
-            </p>
+        <!-- ⚠️ AVISO / DISCLAIMER MÉDICO OBLIGATORIO SG-SST -->
+        <div class="bg-amber-950/50 border border-amber-500/50 rounded-2xl p-4 text-xs text-amber-200 space-y-1.5 shadow-md">
+          <div class="flex items-center gap-2 font-bold text-amber-300 text-xs uppercase tracking-wide">
+            <span>⚕️</span>
+            <span>Aviso Importante de Descargo de Responsabilidad (Disclaimer Médico)</span>
           </div>
+          <p class="text-[11px] leading-relaxed text-amber-100/90">
+            Esta guía visual de colorimetría es exclusivamente un <strong>recurso educativo y pedagógico de autocuidado preventivo</strong>. Bajo ninguna circunstancia sustituye un diagnóstico médico, una valoración clínica profesional, ni exámenes de laboratorio clínico (paraclínicos). La tonalidad de la orina puede verse alterada por factores externos como el consumo de vitaminas (complejo B), ciertos alimentos (ej. remolacha), medicamentos o patologías preexistentes. Si persisten síntomas de malestar, fatiga extrema o sospecha de alteración metabólica, consulte inmediatamente al servicio médico de la empresa o a su EPS.
+          </p>
         </div>
 
-        <!-- 8-Tier Urine Scale Grid -->
         <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2.5" id="urineScaleGrid">
-          <!-- Level 1 -->
-          <div class="urine-card cursor-pointer p-2.5 rounded-xl border border-slate-700 bg-slate-950 flex flex-col items-center space-y-1.5 transition active:scale-95" data-level="1" data-status="Hidratado Óptimo" data-msg="Excelente hidratación celular. Mantén tu consumo de agua programado en cada pausa.">
+          <div class="urine-card cursor-pointer p-2.5 rounded-xl border border-slate-700 bg-slate-950 flex flex-col items-center space-y-1.5 transition active:scale-95" data-level="1" data-status="Hidratado Óptimo" data-msg="Excelente hidratación celular. Mantén tu consumo de agua regular.">
             <div class="w-10 h-14 rounded-lg border border-white/20 shadow-inner" style="background-color: #f7fee7;"></div>
             <span class="text-xs font-bold text-slate-200">Nivel 1</span>
             <span class="text-[10px] text-teal-400 font-semibold">Óptimo</span>
           </div>
-          <!-- Level 2 -->
-          <div class="urine-card cursor-pointer p-2.5 rounded-xl border border-slate-700 bg-slate-950 flex flex-col items-center space-y-1.5 transition active:scale-95" data-level="2" data-status="Hidratado Normal" data-msg="Estado hídrico normal y adecuado. Continúa con tu frecuencia de pausas térmicas.">
+          <div class="urine-card cursor-pointer p-2.5 rounded-xl border border-slate-700 bg-slate-950 flex flex-col items-center space-y-1.5 transition active:scale-95" data-level="2" data-status="Hidratado Normal" data-msg="Estado hídrico normal y adecuado. Continúa con tus pausas.">
             <div class="w-10 h-14 rounded-lg border border-white/20 shadow-inner" style="background-color: #fef9c3;"></div>
             <span class="text-xs font-bold text-slate-200">Nivel 2</span>
             <span class="text-[10px] text-teal-400 font-semibold">Normal</span>
           </div>
-          <!-- Level 3 -->
-          <div class="urine-card cursor-pointer p-2.5 rounded-xl border border-slate-700 bg-slate-950 flex flex-col items-center space-y-1.5 transition active:scale-95" data-level="3" data-status="Hidratación Límite" data-msg="Nivel hídrico justo. Bebe 250 ml en la pausa actual para evitar ingresar en déficit térmico.">
+          <div class="urine-card cursor-pointer p-2.5 rounded-xl border border-slate-700 bg-slate-950 flex flex-col items-center space-y-1.5 transition active:scale-95" data-level="3" data-status="Hidratación Límite" data-msg="Nivel hídrico justo. Bebe 250 ml en la pausa actual.">
             <div class="w-10 h-14 rounded-lg border border-white/20 shadow-inner" style="background-color: #fde047;"></div>
             <span class="text-xs font-bold text-slate-200">Nivel 3</span>
             <span class="text-[10px] text-teal-400 font-semibold">Límite</span>
           </div>
-          <!-- Level 4 -->
-          <div class="urine-card cursor-pointer p-2.5 rounded-xl border border-slate-700 bg-slate-950 flex flex-col items-center space-y-1.5 transition active:scale-95" data-level="4" data-status="Deshidratación Leve" data-msg="Alerta temprana: El organismo está perdiendo fluidos. Ingiere de 300 a 400 ml de agua fresca inmediatamente.">
+          <div class="urine-card cursor-pointer p-2.5 rounded-xl border border-slate-700 bg-slate-950 flex flex-col items-center space-y-1.5 transition active:scale-95" data-level="4" data-status="Deshidratación Leve" data-msg="Alerta temprana: Ingiere de 300 a 400 ml de agua fresca inmediatamente.">
             <div class="w-10 h-14 rounded-lg border border-white/20 shadow-inner" style="background-color: #eab308;"></div>
             <span class="text-xs font-bold text-slate-200">Nivel 4</span>
             <span class="text-[10px] text-amber-400 font-semibold">Leve</span>
           </div>
-          <!-- Level 5 -->
-          <div class="urine-card cursor-pointer p-2.5 rounded-xl border border-slate-700 bg-slate-950 flex flex-col items-center space-y-1.5 transition active:scale-95" data-level="5" data-status="Deshidratación Moderada" data-msg="Riesgo de fatiga prematura y torpeza motriz. Inicia reposición con agua y suero oral en sombra durante 10 min.">
+          <div class="urine-card cursor-pointer p-2.5 rounded-xl border border-slate-700 bg-slate-950 flex flex-col items-center space-y-1.5 transition active:scale-95" data-level="5" data-status="Deshidratación Moderada" data-msg="Riesgo de fatiga prematura. Reposición con agua y descanso en sombra.">
             <div class="w-10 h-14 rounded-lg border border-white/20 shadow-inner" style="background-color: #ca8a04;"></div>
             <span class="text-xs font-bold text-slate-200">Nivel 5</span>
             <span class="text-[10px] text-amber-400 font-semibold">Moderada</span>
           </div>
-          <!-- Level 6 -->
-          <div class="urine-card cursor-pointer p-2.5 rounded-xl border border-slate-700 bg-slate-950 flex flex-col items-center space-y-1.5 transition active:scale-95" data-level="6" data-status="Deshidratación Severa" data-msg="Atención: Alerta por estrés térmico severo. Pausa la actividad de esfuerzo físico y notifica a tu supervisor o brigadista.">
+          <div class="urine-card cursor-pointer p-2.5 rounded-xl border border-slate-700 bg-slate-950 flex flex-col items-center space-y-1.5 transition active:scale-95" data-level="6" data-status="Deshidratación Severa" data-msg="Estrés térmico severo. Pausa la actividad de esfuerzo y notifica al vigía SST.">
             <div class="w-10 h-14 rounded-lg border border-white/20 shadow-inner" style="background-color: #a16207;"></div>
             <span class="text-xs font-bold text-slate-200">Nivel 6</span>
             <span class="text-[10px] text-rose-400 font-semibold">Severa</span>
           </div>
-          <!-- Level 7 -->
-          <div class="urine-card cursor-pointer p-2.5 rounded-xl border border-slate-700 bg-slate-950 flex flex-col items-center space-y-1.5 transition active:scale-95" data-level="7" data-status="Muy Severa" data-msg="Riesgo inminente de golpe de calor o colapso. Reposo absoluto en área fresca y evaluación de signos vitales.">
+          <div class="urine-card cursor-pointer p-2.5 rounded-xl border border-slate-700 bg-slate-950 flex flex-col items-center space-y-1.5 transition active:scale-95" data-level="7" data-status="Muy Severa" data-msg="Riesgo inminente de golpe de calor. Reposo absoluto en área fresca.">
             <div class="w-10 h-14 rounded-lg border border-white/20 shadow-inner" style="background-color: #854d0e;"></div>
             <span class="text-xs font-bold text-slate-200">Nivel 7</span>
             <span class="text-[10px] text-rose-500 font-semibold">Crítica</span>
           </div>
-          <!-- Level 8 -->
-          <div class="urine-card cursor-pointer p-2.5 rounded-xl border border-slate-700 bg-slate-950 flex flex-col items-center space-y-1.5 transition active:scale-95" data-level="8" data-status="Alerta Médica" data-msg="Tonalidad marrón o rojiza. Si no responde a causas conocidas, requiere valoración inmediata por Servicio Médico/EPS.">
+          <div class="urine-card cursor-pointer p-2.5 rounded-xl border border-slate-700 bg-slate-950 flex flex-col items-center space-y-1.5 transition active:scale-95" data-level="8" data-status="Alerta Médica" data-msg="Tonalidad marrón o rojiza. Requiere valoración por Servicio Médico/EPS.">
             <div class="w-10 h-14 rounded-lg border border-white/20 shadow-inner" style="background-color: #582a0b;"></div>
             <span class="text-xs font-bold text-slate-200">Nivel 8</span>
             <span class="text-[10px] text-rose-500 font-black">Alerta</span>
           </div>
         </div>
 
-        <!-- Result Box -->
         <div id="urineDiagnosisBox" class="bg-slate-950 border border-slate-800 rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-3">
           <div class="flex items-center gap-3 w-full sm:w-auto">
             <div id="urineResultColor" class="w-10 h-10 rounded-xl border border-white/20 bg-teal-400 flex-shrink-0"></div>
             <div>
               <div class="text-[11px] text-slate-400">Autoevaluación Seleccionada:</div>
               <div id="urineResultStatus" class="text-sm sm:text-base font-black text-white">Nivel 1: Hidratado Óptimo</div>
-              <p id="urineResultAction" class="text-[11px] text-slate-300 mt-0.5">Excelente hidratación celular. Mantén tu consumo de agua programado en cada pausa.</p>
+              <p id="urineResultAction" class="text-[11px] text-slate-300 mt-0.5">Excelente hidratación celular.</p>
             </div>
           </div>
           <button id="btnLogUrineAssessment" type="button" class="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold border border-slate-700 transition">
@@ -393,51 +385,46 @@
       </div>
     </section>
 
+    <!-- TAB 3: CALCULADORA HÍDRICA -->
     <section id="tab-calculadora" class="tab-content hidden space-y-4">
       <div class="bg-slate-900 rounded-2xl sm:rounded-3xl border border-slate-800 p-4 sm:p-7 space-y-5">
         <div>
           <span class="text-[10px] uppercase font-bold text-cyan-400 tracking-wider">Metodología GTC 45 / Fenómeno de El Niño</span>
           <h2 class="text-xl sm:text-2xl font-black text-white">Calculadora Ocupacional de Demanda Hídrica</h2>
           <p class="text-xs text-slate-400 mt-1 leading-relaxed">
-            Calcula la meta de reposición de fluidos para una jornada laboral de 8 horas, ajustada al gasto metabólico de la labor y a la sobrecarga térmica del ambiente.
+            Calcula la meta de reposición de fluidos para una jornada laboral de 8 horas.
           </p>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <!-- Weight Input -->
           <div class="space-y-1.5">
             <label class="block text-xs font-bold uppercase tracking-wider text-slate-300">1. Peso del Trabajador</label>
             <div class="relative">
               <input type="number" id="calcWeight" value="70" min="40" max="150" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-white font-mono text-base focus:outline-none focus:border-teal-500 transition">
               <span class="absolute right-3.5 top-2.5 text-xs text-slate-500 font-bold">KG</span>
             </div>
-            <p class="text-[10px] text-slate-500">Tasa fisiológica base: 35 ml/kg de peso corporal.</p>
+            <p class="text-[10px] text-slate-500">Tasa base: 35 ml/kg de peso corporal.</p>
           </div>
 
-          <!-- Activity Level -->
           <div class="space-y-1.5">
             <label class="block text-xs font-bold uppercase tracking-wider text-slate-300">2. Demanda Metabólica</label>
             <select id="calcEffort" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-white text-xs sm:text-sm focus:outline-none focus:border-teal-500 transition">
-              <option value="1">Liviana / Administrativo / Garita (x 1.0)</option>
-              <option value="1.25" selected>Moderada / Bodega / Mantenimiento (x 1.25)</option>
-              <option value="1.5">Pesada / Obras Civiles / Intemperie (x 1.5)</option>
+              <option value="1">Liviana / Administrativo (x 1.0)</option>
+              <option value="1.25" selected>Moderada / Bodega (x 1.25)</option>
+              <option value="1.5">Pesada / Intemperie (x 1.5)</option>
             </select>
-            <p class="text-[10px] text-slate-500">Ajuste por consumo calórico y transpiración activa.</p>
           </div>
 
-          <!-- Thermal Conditions -->
           <div class="space-y-1.5">
             <label class="block text-xs font-bold uppercase tracking-wider text-slate-300">3. Condición Climática</label>
             <select id="calcClimate" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-white text-xs sm:text-sm focus:outline-none focus:border-teal-500 transition">
               <option value="1">Climatizado / Fresco (<24°C)</option>
               <option value="1.2" selected>Cálido Moderado (25°C - 31°C)</option>
-              <option value="1.4">Alerta El Niño / Calor Crítico (>32°C WBGT)</option>
+              <option value="1.4">Alerta El Niño (>32°C WBGT)</option>
             </select>
-            <p class="text-[10px] text-slate-500">Sobrecarga térmica del entorno laboral.</p>
           </div>
         </div>
 
-        <!-- Calculated Results Card -->
         <div class="bg-slate-950 border border-teal-900/40 rounded-2xl p-4 sm:p-6">
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center divide-y sm:divide-y-0 sm:divide-x divide-slate-800">
             <div class="py-2 sm:py-0">
@@ -451,7 +438,7 @@
               <span class="text-[10px] text-slate-500">Pausa térmica de 3 minutos</span>
             </div>
             <div class="py-2 sm:py-0">
-              <span class="text-[11px] uppercase font-bold text-slate-400">Dosis Recomendada / Pausa</span>
+              <span class="text-[11px] uppercase font-bold text-slate-400">Dosis / Pausa</span>
               <div class="text-3xl sm:text-4xl font-black text-amber-400 font-mono mt-0.5" id="prescribedDose">190 ml</div>
               <span class="text-[10px] text-slate-500">Sorbos lentos de agua fresca</span>
             </div>
@@ -466,32 +453,28 @@
       </div>
     </section>
 
+    <!-- TAB 4: AFICHE QR -->
     <section id="tab-qr" class="tab-content hidden space-y-4">
       <div class="bg-slate-900 rounded-2xl sm:rounded-3xl border border-slate-800 p-4 sm:p-7">
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          
           <div class="lg:col-span-6 space-y-4">
             <div>
-              <span class="text-[10px] uppercase font-bold text-teal-400 tracking-wider">Implementación Operativa en Planta</span>
+              <span class="text-[10px] uppercase font-bold text-teal-400 tracking-wider">Implementación Operativa</span>
               <h2 class="text-xl sm:text-2xl font-black text-white">Cartel de Estación de Hidratación</h2>
-              <p class="text-xs text-slate-400 mt-1 leading-relaxed">
-                Ubica este cartel plastificado junto a botellones, casinos, garitas de vigilancia o puestos fijos. El personal solo debe escanear el código QR con su smartphone para iniciar su autocontrol de hidratación.
-              </p>
             </div>
 
             <div class="space-y-3 bg-slate-950 p-4 rounded-2xl border border-slate-800">
               <div>
-                <label class="block text-[11px] font-bold uppercase text-slate-300 mb-1">Nombre de la Empresa Cliente</label>
-                <input type="text" id="qrClientName" value="EMPRESA CLIENTE S.A.S." class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white text-xs focus:outline-none focus:border-teal-500">
+                <label class="block text-[11px] font-bold uppercase text-slate-300 mb-1">Nombre de la Empresa</label>
+                <input type="text" id="qrClientName" value="EMPRESA CLIENTE" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white text-xs focus:outline-none focus:border-teal-500">
               </div>
               <div>
-                <label class="block text-[11px] font-bold uppercase text-slate-300 mb-1">Ubicación / Puesto de Hidratación</label>
+                <label class="block text-[11px] font-bold uppercase text-slate-300 mb-1">Ubicación / Puesto</label>
                 <input type="text" id="qrStationLocation" value="Puesto de Hidratación No. 1 - Bodega Central" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white text-xs focus:outline-none focus:border-teal-500">
               </div>
               <div>
-                <label class="block text-[11px] font-bold uppercase text-slate-300 mb-1">Enlace / URL de la Aplicación</label>
-                <input type="text" id="qrTargetUrl" value="" placeholder="https://miempresa.com/sgsst-hidratacion" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white text-xs font-mono focus:outline-none focus:border-teal-500">
-                <span class="text-[10px] text-slate-500 block mt-1">Si dejas este campo vacío, se enlazará automáticamente a la dirección actual.</span>
+                <label class="block text-[11px] font-bold uppercase text-slate-300 mb-1">URL de la Aplicación (GitHub Pages / Dominio)</label>
+                <input type="text" id="qrTargetUrl" value="" placeholder="https://alertasolar.nixus.com.co" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-white text-xs font-mono focus:outline-none focus:border-teal-500">
               </div>
 
               <div class="flex flex-wrap gap-2 pt-2">
@@ -505,47 +488,40 @@
             </div>
           </div>
 
-          <!-- Printable Visual Poster Box -->
           <div class="lg:col-span-6 flex justify-center w-full">
             <div id="printArea" class="bg-white text-slate-950 rounded-2xl p-5 shadow-2xl border-4 border-teal-600 w-full max-w-xs flex flex-col items-center text-center space-y-2.5">
               <div class="text-[11px] font-black tracking-widest text-teal-800 uppercase">
                 NIXUS CAPITAL HUMANO • SG-SST
               </div>
               <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider" id="posterClientDisplay">
-                EMPRESA CLIENTE S.A.S.
+                EMPRESA CLIENTE
               </div>
               <h3 class="text-base font-black text-slate-900 leading-tight uppercase">
                 ¡PUNTO OFICIAL DE HIDRATACIÓN Y PAUSA TÉRMICA!
               </h3>
               <p class="text-[10px] text-slate-600">Escanea aquí con tu celular para abrir tu reloj de pausas térmicas:</p>
               
-              <!-- QR Code Container (Canvas/IMG fallback) -->
-              <div class="p-2.5 bg-slate-50 border-2 border-dashed border-slate-300 rounded-xl my-1 flex items-center justify-center min-h-[140px] min-w-[140px]" id="qrcodeContainer">
-                <!-- QR rendered dynamically -->
-              </div>
+              <div class="p-2.5 bg-slate-50 border-2 border-dashed border-slate-300 rounded-xl my-1 flex items-center justify-center min-h-[140px] min-w-[140px]" id="qrcodeContainer"></div>
 
               <div class="w-full bg-teal-50 border border-teal-200 rounded-xl p-2 text-[10px] text-teal-950 font-semibold space-y-0.5">
                 <div>⏱️ 3 minutos de pausa cada 25 minutos</div>
-                <div>💧 Meta recomendada: 150 a 200 ml por pausa</div>
-                <div id="posterLocationDisplay" class="text-slate-600 font-normal">Puesto de Hidratación No. 1</div>
+                <div>💧 Meta: 150 a 200 ml por pausa</div>
+                <div id="posterLocationDisplay" class="text-slate-600 font-normal">Puesto No. 1</div>
               </div>
-              <span class="text-[8px] text-slate-400 font-mono">Cumplimiento Res. 2400 de 1979 & Dec. 1072 de 2015</span>
+              <span class="text-[8px] text-slate-400 font-mono">Cumplimiento Res. 2400/1979 & Dec. 1072/2015</span>
             </div>
           </div>
         </div>
       </div>
     </section>
 
+    <!-- TAB 5: REGISTRO LOCAL -->
     <section id="tab-auditoria" class="tab-content hidden space-y-4">
       <div class="bg-slate-900 rounded-2xl sm:rounded-3xl border border-slate-800 p-4 sm:p-7 space-y-4">
-        
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <span class="text-[10px] uppercase font-bold text-cyan-400 tracking-wider">Autocontrol & Privacidad (Ley 1581 / 2012)</span>
             <h2 class="text-xl sm:text-2xl font-black text-white">Mi Registro Local de Hidratación</h2>
-            <p class="text-xs text-slate-400 mt-0.5">
-              Control de cumplimiento de pausas térmicas para uso personal o reporte voluntario ante el COPASST.
-            </p>
           </div>
           <div class="flex items-center gap-2">
             <button id="btnCopyReport" type="button" class="px-3.5 py-2 rounded-xl bg-teal-600 hover:bg-teal-500 text-white text-xs font-bold transition flex items-center gap-1.5">
@@ -557,15 +533,6 @@
           </div>
         </div>
 
-        <!-- HABEAS DATA & LOCAL PRIVACY BADGE -->
-        <div class="bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-slate-400 flex items-start gap-2.5">
-          <span class="text-base flex-shrink-0">🔒</span>
-          <p class="text-[11px] leading-relaxed">
-            <strong>Arquitectura 100% Local y Descentralizada:</strong> Esta aplicación no transmite datos personales, nombres, cédulas ni registros médicos a ningún servidor externo o base de datos en la nube. La información se conserva de forma transitoria en la memoria de este navegador (<code class="text-slate-300">localStorage</code>) para su tranquilidad y estricto cumplimiento de la Ley Estatutaria 1581 de 2012 (Habeas Data).
-          </p>
-        </div>
-
-        <!-- Summary Cards -->
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
           <div class="bg-slate-950 p-3.5 rounded-xl border border-slate-800">
             <span class="text-[10px] uppercase font-bold text-slate-400">Pausas Tomadas</span>
@@ -585,7 +552,6 @@
           </div>
         </div>
 
-        <!-- Chronological Table -->
         <div class="overflow-x-auto rounded-xl border border-slate-800">
           <table class="w-full text-left text-xs text-slate-300">
             <thead class="bg-slate-950 text-slate-400 uppercase font-semibold border-b border-slate-800 text-[10px]">
@@ -598,7 +564,7 @@
             </thead>
             <tbody id="auditTableBody" class="divide-y divide-slate-800/60 font-mono text-[11px]">
               <tr>
-                <td colspan="4" class="p-4 text-center text-slate-500 font-sans">No hay eventos registrados en la sesión actual.</td>
+                <td colspan="4" class="p-4 text-center text-slate-500 font-sans">No hay registros aún en la sesión actual.</td>
               </tr>
             </tbody>
           </table>
@@ -607,8 +573,7 @@
     </section>
   </main>
 
-  
-  <!-- MODAL: Thermal Break Reminder (Pop-up on Timer Finish) -->
+  <!-- MODAL: PAUSA TÉRMICA REMINDER -->
   <div id="modalBreakAlert" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-3.5 hidden">
     <div class="bg-slate-900 border-2 border-amber-500 active-thermal-alarm rounded-3xl max-w-md w-full p-5 sm:p-7 text-center space-y-4 relative">
       <div class="w-16 h-16 mx-auto rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/40 flex items-center justify-center text-3xl">
@@ -623,7 +588,6 @@
         </p>
       </div>
 
-      <!-- Action Checklist -->
       <div class="bg-slate-950 rounded-xl p-3 text-left text-xs space-y-2 border border-slate-800">
         <label class="flex items-center gap-2 text-slate-300 cursor-pointer">
           <input type="checkbox" id="chkStep1" class="rounded bg-slate-800 border-slate-700 text-teal-500 focus:ring-0">
@@ -639,14 +603,13 @@
         </label>
       </div>
 
-      <!-- Resume Button -->
       <button id="btnCompleteBreak" type="button" class="w-full py-3 rounded-xl font-bold text-xs sm:text-sm bg-gradient-to-r from-amber-400 to-teal-400 text-slate-950 shadow-lg shadow-amber-400/20 hover:opacity-95 transition">
-        ¡Pausa Cumplida! Iniciar Siguiente Bloque (+200 ml)
+        ¡Pausa Cumplida! Iniciar Siguiente Bloque (200 ml)
       </button>
     </div>
   </div>
 
-  <!-- MODAL: Heat Stroke Emergency Protocol (SOS) -->
+  <!-- MODAL: SOS CALOR -->
   <div id="modalSos" class="fixed inset-0 z-50 bg-rose-950/85 backdrop-blur-md flex items-center justify-center p-3.5 hidden">
     <div class="bg-slate-900 border border-rose-600 rounded-3xl max-w-md w-full p-5 sm:p-6 space-y-4 text-left">
       <div class="flex items-center justify-between">
@@ -666,16 +629,16 @@
         <div class="p-2.5 rounded-xl bg-rose-950/40 border border-rose-900/60">
           <span class="font-bold text-rose-300 block mb-0.5 text-[11px]">🚨 Signos de Alarma Críticos:</span>
           <p class="text-[11px] leading-relaxed">
-            Piel caliente y seca (ausencia total de sudor), confusión mental, desmayo o pérdida de conciencia, pulso acelerado, vómitos repetitivos.
+            Piel caliente y seca (ausencia total de sudor), confusión mental, desmayo, vómito repetitivo.
           </p>
         </div>
 
         <ol class="list-decimal pl-4 space-y-1 text-[11px] text-slate-300">
           <li><strong>Traslado urgente:</strong> Mover a la víctima a zona fresca y con sombra profunda.</li>
-          <li><strong>Posición de reposo:</strong> Acostar con piernas elevadas (posición de Trendelenburg ligera) salvo si vomita (posición lateral de seguridad).</li>
-          <li><strong>Enfriamiento activo:</strong> Aflojar ropa. Aplicar toallas húmedas en nuca, axilas e ingles. Usar ventilador.</li>
-          <li><strong>Líquidos:</strong> Dar agua fresca SOLO si está plenamente consciente. NUNCA a personas somnolientas.</li>
-          <li><strong>Notificación:</strong> Activar de inmediato brigada de emergencias de la empresa y línea 123 / ARL.</li>
+          <li><strong>Posición:</strong> Acostar con piernas elevadas salvo si vomita.</li>
+          <li><strong>Enfriamiento:</strong> Aplicar toallas húmedas en nuca, axilas e ingles.</li>
+          <li><strong>Líquidos:</strong> Solo si está plenamente consciente.</li>
+          <li><strong>Notificación:</strong> Activar brigada de emergencias y línea 123 / ARL.</li>
         </ol>
       </div>
 
@@ -685,7 +648,7 @@
     </div>
   </div>
 
-  <!-- TOAST NOTIFICATION CONTAINER -->
+  <!-- TOAST NOTIFICATION -->
   <div id="toastNotification" class="fixed bottom-4 right-4 left-4 sm:left-auto sm:max-w-sm z-50 bg-slate-900 text-white border border-slate-700 rounded-2xl p-3 shadow-2xl flex items-center gap-3 transform translate-y-24 opacity-0 transition-all duration-300 pointer-events-none">
     <div id="toastIcon" class="w-7 h-7 rounded-lg bg-teal-500/20 text-teal-400 flex items-center justify-center font-bold text-xs">✓</div>
     <div class="text-xs truncate">
@@ -695,57 +658,140 @@
   </div>
 
   <script>
-    // Audio Synthesizer for Thermal Break Whistle & Water Intake
-    class OSHAudioEffects {
-      constructor() {
-        this.ctx = null;
-        this.enabled = true;
+    // ==============================================================
+    // 1. REGISTRO DEL SERVICE WORKER (MODO OFFLINE PWA)
+    // ==============================================================
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+          .then(() => console.log('Service Worker Registrado: Modo Offline Activo'))
+          .catch(err => console.warn('Aviso SW:', err));
+      });
+    }
+
+    // ==============================================================
+    // 2. CONFIGURACIÓN DEL WEBHOOK DE GOOGLE APPS SCRIPT
+    // ==============================================================
+    const APPS_SCRIPT_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz_TU_CODIGO_AQUI/exec";
+    const QUEUE_STORAGE_KEY = 'nixus_offline_events_queue';
+
+    function generarIdSesionUnico() {
+      const fecha = new Date().toISOString().slice(2, 10).replace(/-/g, '');
+      const aleatorio = Math.random().toString(36).substring(2, 7).toUpperCase();
+      return `USR-${fecha}-${aleatorio}`;
+    }
+
+    let idSesionActiva = sessionStorage.getItem('nixus_sesion_id');
+    if (!idSesionActiva) {
+      idSesionActiva = generarIdSesionUnico();
+      sessionStorage.setItem('nixus_sesion_id', idSesionActiva);
+    }
+
+    let empresaActual = sessionStorage.getItem('nixus_empresa_activa') || localStorage.getItem('nixus_empresa_activa') || "";
+    let segundosUsoSesion = 0;
+    setInterval(() => { segundosUsoSesion++; }, 1000);
+
+    // ==============================================================
+    // 3. SINCRONIZACIÓN DE COLA OFFLINE HACIA GOOGLE SHEETS
+    // ==============================================================
+    function encolarEventoLocalmente(payload) {
+      let cola = [];
+      try {
+        const data = localStorage.getItem(QUEUE_STORAGE_KEY);
+        cola = data ? JSON.parse(data) : [];
+      } catch(e) {}
+      cola.push(payload);
+      localStorage.setItem(QUEUE_STORAGE_KEY, JSON.stringify(cola));
+    }
+
+    function procesarColaEventos() {
+      if (!navigator.onLine) return;
+
+      let cola = [];
+      try {
+        const data = localStorage.getItem(QUEUE_STORAGE_KEY);
+        cola = data ? JSON.parse(data) : [];
+      } catch(e) {}
+
+      if (cola.length === 0) return;
+
+      fetch(APPS_SCRIPT_WEB_APP_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(cola)
+      })
+      .then(() => {
+        localStorage.removeItem(QUEUE_STORAGE_KEY);
+        console.log(`[Sincronización]: ${cola.length} eventos transmitidos a Google Sheets.`);
+      })
+      .catch(err => console.warn('[Aviso de Sincronización]: En cola para reintento:', err));
+    }
+
+    window.addEventListener('online', procesarColaEventos);
+
+    function registrarEventoEnGoogleSheet(modulo, accion, detalle) {
+      if (!empresaActual) return;
+
+      let detalleLimpio = (detalle || "").toString().trim();
+      if (detalleLimpio.startsWith("+")) {
+        detalleLimpio = detalleLimpio.substring(1);
       }
 
+      const payload = {
+        idSesion: idSesionActiva,
+        fechaHora: new Date().toLocaleString("sv-SE", { timeZone: "America/Bogota" }).replace('T', ' '),
+        empresa: empresaActual,
+        modulo: modulo || "Reloj Térmico",
+        accion: accion || "Interacción",
+        detalle: detalleLimpio,
+        tiempoSesionMin: Math.max(1, Math.round(segundosUsoSesion / 60)),
+        userAgent: navigator.userAgent.substring(0, 100)
+      };
+
+      encolarEventoLocalmente(payload);
+
+      if (navigator.onLine) {
+        procesarColaEventos();
+      }
+    }
+
+    // ==============================================================
+    // 4. LÓGICA DE INTERFAZ Y FUNCIONES DE LA APP
+    // ==============================================================
+    class OSHAudioEffects {
+      constructor() { this.ctx = null; this.enabled = true; }
       initContext() {
         if (!this.ctx) {
           const AudioContext = window.AudioContext || window.webkitAudioContext;
           this.ctx = new AudioContext();
         }
-        if (this.ctx && this.ctx.state === 'suspended') {
-          this.ctx.resume();
-        }
+        if (this.ctx && this.ctx.state === 'suspended') { this.ctx.resume(); }
       }
-
       playThermalAlarm() {
         if (!this.enabled) return;
         try {
           this.initContext();
           const now = this.ctx.currentTime;
-
           const ringPulse = (startTime, freq) => {
             const osc = this.ctx.createOscillator();
             const gain = this.ctx.createGain();
-
             osc.type = 'sine';
             osc.frequency.setValueAtTime(freq, startTime);
             osc.frequency.exponentialRampToValueAtTime(freq * 1.3, startTime + 0.35);
-
             gain.gain.setValueAtTime(0.001, startTime);
             gain.gain.linearRampToValueAtTime(0.3, startTime + 0.04);
             gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.35);
-
             osc.connect(gain);
             gain.connect(this.ctx.destination);
-
             osc.start(startTime);
             osc.stop(startTime + 0.38);
           };
-
-          // Distinctive two-tone industrial thermal alert
           ringPulse(now, 880);
           ringPulse(now + 0.25, 1175);
           ringPulse(now + 0.55, 1480);
-        } catch (e) {
-          console.warn('Audio non-blocking exception:', e);
-        }
+        } catch (e) {}
       }
-
       playWaterGulp() {
         if (!this.enabled) return;
         try {
@@ -753,29 +799,83 @@
           const now = this.ctx.currentTime;
           const osc = this.ctx.createOscillator();
           const gain = this.ctx.createGain();
-
           osc.type = 'sine';
           osc.frequency.setValueAtTime(380, now);
           osc.frequency.exponentialRampToValueAtTime(680, now + 0.12);
-
           gain.gain.setValueAtTime(0.01, now);
           gain.gain.linearRampToValueAtTime(0.25, now + 0.02);
           gain.gain.exponentialRampToValueAtTime(0.001, now + 0.13);
-
           osc.connect(gain);
           gain.connect(this.ctx.destination);
-
           osc.start(now);
           osc.stop(now + 0.14);
-        } catch (e) {
-          console.warn('Gulp sound suppressed:', e);
-        }
+        } catch (e) {}
       }
     }
 
     const sfx = new OSHAudioEffects();
 
-    // Local State (Persistence in localStorage)
+    const modalOnboarding = document.getElementById('modalOnboarding');
+    const btnComenzarJornada = document.getElementById('btnComenzarJornada');
+    const inputEmpresaNombre = document.getElementById('inputEmpresaNombre');
+    const badgeEmpresaHeader = document.getElementById('badgeEmpresaHeader');
+    const badgeIdSesionHeader = document.getElementById('badgeIdSesionHeader');
+
+    function inicializarSesion() {
+      if (badgeIdSesionHeader) badgeIdSesionHeader.textContent = `ID: ${idSesionActiva}`;
+      if (empresaActual) {
+        if (modalOnboarding) {
+          modalOnboarding.classList.add('hidden');
+          modalOnboarding.style.display = 'none';
+        }
+        if (badgeEmpresaHeader) badgeEmpresaHeader.textContent = empresaActual;
+        const qrInput = document.getElementById('qrClientName');
+        if (qrInput) qrInput.value = empresaActual;
+      } else {
+        if (modalOnboarding) {
+          modalOnboarding.classList.remove('hidden');
+          modalOnboarding.style.display = 'flex';
+        }
+      }
+    }
+
+    // LISTENER BLINDADO DEL ONBOARDING (LIBRE DE CITACIONES Y ERRORES)
+    if (btnComenzarJornada) {
+      btnComenzarJornada.addEventListener('click', () => {
+        const val = inputEmpresaNombre ? inputEmpresaNombre.value.trim() : "";
+        if (!val) {
+          alert("Por favor ingresa el nombre de la empresa para continuar.");
+          if (inputEmpresaNombre) inputEmpresaNombre.focus();
+          return;
+        }
+
+        empresaActual = val;
+        sessionStorage.setItem('nixus_empresa_activa', empresaActual);
+        localStorage.setItem('nixus_empresa_activa', empresaActual);
+        
+        if (badgeEmpresaHeader) badgeEmpresaHeader.textContent = empresaActual;
+        const qrInput = document.getElementById('qrClientName');
+        if (qrInput) qrInput.value = empresaActual;
+        
+        if (modalOnboarding) {
+          modalOnboarding.classList.add('hidden');
+          modalOnboarding.style.display = 'none';
+        }
+
+        showToast("Sesión Iniciada", `Empresa: ${empresaActual}`, "🛡️");
+        registrarEventoEnGoogleSheet("Inicio / Onboarding", "Ingreso a la App", "Inicio de sesión de la empresa");
+      });
+    }
+
+    if (inputEmpresaNombre) {
+      inputEmpresaNombre.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          if (btnComenzarJornada) btnComenzarJornada.click();
+        }
+      });
+    }
+
     const STORAGE_KEY = 'nixus_thermal_break_state_v1';
     let state = {
       timerMinutes: 25,
@@ -791,7 +891,6 @@
       logs: []
     };
 
-    // Load saved local data if present
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
@@ -802,9 +901,7 @@
         state.lastUrineAssessment = parsed.lastUrineAssessment || "Nivel 1 (Óptimo)";
         state.logs = Array.isArray(parsed.logs) ? parsed.logs : [];
       }
-    } catch(err) {
-      console.warn('Local storage read skipped');
-    }
+    } catch(err) {}
 
     function persistState() {
       try {
@@ -813,12 +910,11 @@
           dailyGoalMl: state.dailyGoalMl,
           totalBreaksTriggered: state.totalBreaksTriggered,
           lastUrineAssessment: state.lastUrineAssessment,
-          logs: state.logs.slice(0, 50) // keep last 50 events
+          logs: state.logs.slice(0, 50)
         }));
       } catch(e) {}
     }
 
-    // DOM Elements
     const timerDisplay = document.getElementById('timerDisplay');
     const timerProgress = document.getElementById('timerProgress');
     const btnStartPause = document.getElementById('btnStartPause');
@@ -830,13 +926,11 @@
     const currentCycleText = document.getElementById('currentCycleText');
     const nextBreakText = document.getElementById('nextBreakText');
     
-    // Flask Elements
     const flaskLiquid = document.getElementById('flaskLiquid');
     const flaskPercentText = document.getElementById('flaskPercentText');
     const consumedMlText = document.getElementById('consumedMlText');
     const goalMlText = document.getElementById('goalMlText');
 
-    // Modals
     const modalBreakAlert = document.getElementById('modalBreakAlert');
     const btnCompleteBreak = document.getElementById('btnCompleteBreak');
     const modalSos = document.getElementById('modalSos');
@@ -844,19 +938,16 @@
     const btnCloseSos = document.getElementById('btnCloseSos');
     const btnAcknowledgeSos = document.getElementById('btnAcknowledgeSos');
 
-    // Audio Elements
     const btnToggleAudio = document.getElementById('btnToggleAudio');
     const audioStatusDot = document.getElementById('audioStatusDot');
     const audioStatusText = document.getElementById('audioStatusText');
 
-    // Audit Table & Stats
     const statBreaksCount = document.getElementById('statBreaksCount');
     const statTotalVolume = document.getElementById('statTotalVolume');
     const statGoalPercent = document.getElementById('statGoalPercent');
     const statLastUrine = document.getElementById('statLastUrine');
     const auditTableBody = document.getElementById('auditTableBody');
 
-    // Toast Notification
     const toast = document.getElementById('toastNotification');
     const toastTitle = document.getElementById('toastTitle');
     const toastMessage = document.getElementById('toastMessage');
@@ -871,7 +962,7 @@
       setTimeout(() => {
         toast.classList.add('translate-y-24', 'opacity-0');
         toast.classList.remove('translate-y-0', 'opacity-100');
-      }, 3200);
+      }, 3000);
     }
 
     function addAuditLog(action, detail, status = "Efectuado") {
@@ -934,8 +1025,9 @@
       state.totalBreaksTriggered++;
 
       modalBreakAlert.classList.remove('hidden');
-      addAuditLog("Pausa Térmica SG-SST", `Ciclo ${state.cycleCount} finalizado. Inicio de pausa.`);
+      addAuditLog("Pausa Térmica SG-SST", `Ciclo ${state.cycleCount} finalizado.`);
       persistState();
+      registrarEventoEnGoogleSheet("Reloj Térmico", "Alarma Disparada", `Pausa ciclo ${state.cycleCount}`);
     }
 
     function toggleTimer() {
@@ -948,12 +1040,15 @@
         shiftStatusLabel.textContent = "Labor Detenida (En Pausa)";
         shiftStatusLabel.className = "text-[11px] uppercase font-bold text-amber-400 tracking-wider mb-1";
         playIcon.textContent = "▶";
+        registrarEventoEnGoogleSheet("Reloj Térmico", "Pausa Manual", "Detuvo temporizador");
       } else {
         state.isRunning = true;
         btnStartText.textContent = "Detener Tiempo";
         shiftStatusLabel.textContent = "Labor Activa en Curso";
         shiftStatusLabel.className = "text-[11px] uppercase font-bold text-teal-400 tracking-wider mb-1";
         playIcon.textContent = "⏸";
+
+        registrarEventoEnGoogleSheet("Reloj Térmico", "Inicio Jornada", `Inició bloque ${state.cycleCount}`);
 
         state.intervalId = setInterval(() => {
           if (state.timerSecondsRemaining > 0) {
@@ -975,14 +1070,16 @@
       playIcon.textContent = "▶";
       updateTimerUI();
       showToast("Reloj Reiniciado", `${state.timerMinutes} minutos programados.`);
+      registrarEventoEnGoogleSheet("Reloj Térmico", "Reinicio Temporizador", `${state.timerMinutes} min`);
     }
 
     function addWater(amount) {
       sfx.playWaterGulp();
       state.consumedMl += amount;
       updateFlaskUI();
-      addAuditLog("Ingesta Hídrica", `+${amount} ml consumidos`);
-      showToast("¡Buen Autocuidado!", `+${amount} ml sumados a tu meta.`, "💧");
+      addAuditLog("Ingesta Hídrica", `${amount} ml consumidos`);
+      showToast("¡Buen Autocuidado!", `${amount} ml sumados.`, "💧");
+      registrarEventoEnGoogleSheet("Reloj Térmico", "Ingesta Hídrica", `Consumió ${amount} ml (Acumulado: ${state.consumedMl} ml)`);
     }
 
     function updateFlaskUI() {
@@ -995,10 +1092,10 @@
       renderAuditTable();
     }
 
-    // Tab Navigation Logic
     document.querySelectorAll('.tab-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         const targetTab = btn.getAttribute('data-tab');
+        const moduleName = btn.getAttribute('data-module-name') || targetTab;
 
         document.querySelectorAll('.tab-btn').forEach(b => {
           b.classList.remove('active', 'bg-teal-600', 'text-white', 'shadow-md', 'shadow-teal-600/30');
@@ -1015,15 +1112,16 @@
         if (targetTab === 'tab-qr') {
           generateDynamicQr();
         }
+
+        registrarEventoEnGoogleSheet(moduleName, "Cambio de Pestaña", `Accedió al módulo ${moduleName}`);
       });
     });
 
-    // Audio Button
     btnToggleAudio.addEventListener('click', () => {
       sfx.enabled = !sfx.enabled;
       if (sfx.enabled) {
         audioStatusDot.className = "w-2 h-2 rounded-full bg-teal-400 animate-pulse";
-        audioStatusText.textContent = "Alarma Sonora Activa";
+        audioStatusText.textContent = "Alarma Sonora";
         showToast("Audio Activado", "La alarma sonará en cada pausa.");
       } else {
         audioStatusDot.className = "w-2 h-2 rounded-full bg-slate-500";
@@ -1032,7 +1130,6 @@
       }
     });
 
-    // Complete Break Button
     btnCompleteBreak.addEventListener('click', () => {
       state.consumedMl += 200;
       state.cycleCount++;
@@ -1040,13 +1137,14 @@
       modalBreakAlert.classList.add('hidden');
       updateFlaskUI();
       updateTimerUI();
-      addAuditLog("Pausa Cumplida", `3 min de enfriamiento y 200 ml ingeridos. Iniciando bloque ${state.cycleCount}`);
+      addAuditLog("Pausa Cumplida", `3 min de enfriamiento y 200 ml ingeridos. Bloque ${state.cycleCount}`);
       showToast("¡Pausa Completada!", `Bloque operativo ${state.cycleCount} en marcha.`, "🛡️");
 
       document.getElementById('chkStep1').checked = false;
       document.getElementById('chkStep2').checked = false;
       document.getElementById('chkStep3').checked = false;
 
+      registrarEventoEnGoogleSheet("Reloj Térmico", "Pausa Cumplida", `Completó descanso. Inicia bloque ${state.cycleCount}`);
       toggleTimer();
     });
 
@@ -1054,7 +1152,6 @@
       triggerThermalBreak();
     });
 
-    // Interval Selector Buttons
     document.querySelectorAll('.interval-opt').forEach(opt => {
       opt.addEventListener('click', () => {
         document.querySelectorAll('.interval-opt').forEach(o => {
@@ -1070,10 +1167,10 @@
         state.timerSecondsRemaining = mins * 60;
         updateTimerUI();
         showToast("Intervalo Ajustado", `Pausas cada ${mins} minutos.`);
+        registrarEventoEnGoogleSheet("Reloj Térmico", "Ajuste Intervalo", `${mins} minutos`);
       });
     });
 
-    // Water Drinks
     document.querySelectorAll('.btn-drink').forEach(btn => {
       btn.addEventListener('click', () => {
         const amount = parseInt(btn.getAttribute('data-amount'), 10);
@@ -1084,12 +1181,14 @@
     btnStartPause.addEventListener('click', toggleTimer);
     btnResetTimer.addEventListener('click', resetTimer);
 
-    // SOS Modal Handlers
-    btnSosModal.addEventListener('click', () => modalSos.classList.remove('hidden'));
+    btnSosModal.addEventListener('click', () => {
+      modalSos.classList.remove('hidden');
+      registrarEventoEnGoogleSheet("SOS Calor", "Apertura Modal SOS", "Consultó protocolo de golpe de calor");
+    });
     btnCloseSos.addEventListener('click', () => modalSos.classList.add('hidden'));
     btnAcknowledgeSos.addEventListener('click', () => modalSos.classList.add('hidden'));
 
-    // Urine Scale Interactive Cards
+    // Semáforo de Orina
     document.querySelectorAll('.urine-card').forEach(card => {
       card.addEventListener('click', () => {
         document.querySelectorAll('.urine-card').forEach(c => {
@@ -1115,9 +1214,10 @@
     document.getElementById('btnLogUrineAssessment').addEventListener('click', () => {
       addAuditLog("Autoevaluación Orina", state.lastUrineAssessment);
       showToast("Evaluación Guardada", state.lastUrineAssessment, "💧");
+      registrarEventoEnGoogleSheet("Semáforo de Hidratación", "Registro Orina", state.lastUrineAssessment);
     });
 
-    // Dosage Calculator
+    // Calculadora Hídrica
     function recalculateDosage() {
       const weight = parseFloat(document.getElementById('calcWeight').value) || 70;
       const effort = parseFloat(document.getElementById('calcEffort').value) || 1.25;
@@ -1132,7 +1232,7 @@
       const dosePerPause = Math.round(totalMl / pauseCount);
 
       document.getElementById('prescribedLiters').textContent = `${totalLiters} L`;
-      document.getElementById('prescribedGlasses').textContent = `Aprox. ${glasses} vasos de 250ml en 8h`;
+      document.getElementById('prescribedGlasses').textContent = `Aprox. ${glasses} vasos de 250ml`;
       document.getElementById('prescribedInterval').textContent = `${intervalMins} min`;
       document.getElementById('prescribedDose').textContent = `${dosePerPause} ml`;
     }
@@ -1164,25 +1264,23 @@
 
       addAuditLog("Meta Asignada", `${totalMl} ml | Pausa cada ${intervalMins} min`);
       showToast("Meta Aplicada", `Objetivo: ${(totalMl/1000).toFixed(1)} L para la jornada.`, "⚖️");
+      registrarEventoEnGoogleSheet("Calculadora Hídrica", "Meta Aplicada", `Meta: ${(totalMl/1000).toFixed(1)}L | Pausas: cada ${intervalMins}min`);
     });
 
     function generateDynamicQr() {
       const container = document.getElementById('qrcodeContainer');
       container.innerHTML = '';
 
-      // Determine valid target URL
       let targetUrl = document.getElementById('qrTargetUrl').value.trim();
       if (!targetUrl) {
-        // Use browser window URL or sensible HTTPS default if in local sandbox
         targetUrl = (window.location && window.location.href && !window.location.href.startsWith('about:'))
           ? window.location.href 
-          : 'https://nixus.com.co/pausas-termicas';
+          : 'https://alertasolar.nixus.com.co';
         document.getElementById('qrTargetUrl').value = targetUrl;
       }
 
-      // Update printed text labels
       document.getElementById('posterClientDisplay').textContent = 
-        document.getElementById('qrClientName').value.trim() || "EMPRESA CLIENTE S.A.S.";
+        document.getElementById('qrClientName').value.trim() || empresaActual || "EMPRESA CLIENTE";
       document.getElementById('posterLocationDisplay').textContent = 
         document.getElementById('qrStationLocation').value.trim() || "Puesto de Hidratación No. 1";
 
@@ -1198,12 +1296,9 @@
             correctLevel: QRCode.CorrectLevel.M
           });
           qrSuccess = true;
-        } catch(e) {
-          console.warn('QRCode.js rendering error:', e);
-        }
+        } catch(e) {}
       }
 
-      // Fallback: If library is blocked by CSP or adblock, render via Google Charts or QR Server API
       if (!qrSuccess) {
         const encoded = encodeURIComponent(targetUrl);
         const img = document.createElement('img');
@@ -1212,36 +1307,28 @@
         img.style.width = "140px";
         img.style.height = "140px";
         img.className = "rounded-lg";
-        img.onerror = () => {
-          container.innerHTML = `<div class="p-3 text-center text-slate-800 text-[10px] font-mono">Escanear enlace:<br><strong class="break-all">${targetUrl}</strong></div>`;
-        };
         container.appendChild(img);
       }
     }
 
     document.getElementById('btnGenerateQrPoster').addEventListener('click', () => {
       generateDynamicQr();
-      showToast("Afiche Actualizado", "Listo para imprimir o exhibir en planta.", "📲");
+      showToast("Afiche Actualizado", "Listo para imprimir.", "📲");
+      registrarEventoEnGoogleSheet("Afiche QR", "Actualizó Afiche", "Generó código QR para planta");
     });
 
-    // Copy Summary to Clipboard
     document.getElementById('btnCopyReport').addEventListener('click', () => {
       const today = new Date().toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' });
       let r = `REGISTRO DE AUTOCONTROL - PAUSAS TÉRMICAS SG-SST\n`;
+      r += `Sesión ID: ${idSesionActiva}\n`;
+      r += `Empresa: ${empresaActual || 'No especificada'}\n`;
       r += `Campaña Fenómeno de El Niño - NIXUS Capital Humano\n`;
       r += `Fecha: ${today}\n`;
       r += `--------------------------------------------------\n`;
-      r += `• Pausas Térmicas Ejecutadas: ${state.totalBreaksTriggered}\n`;
-      r += `• Ingesta Hídrica Registrada: ${state.consumedMl} ml\n`;
-      r += `• Meta Asignada para el Turno: ${state.dailyGoalMl} ml\n`;
-      r += `• Cumplimiento Estimado: ${Math.round((state.consumedMl / state.dailyGoalMl) * 100)}%\n`;
-      r += `• Autodiagnóstico de Orina: ${state.lastUrineAssessment}\n\n`;
-      r += `HISTORIAL DEL TURNO:\n`;
-
-      state.logs.slice(0, 15).forEach(l => {
-        r += `[${l.time}] ${l.action}: ${l.detail}\n`;
-      });
-      r += `\nRegistro de autogestión individual conforme a la Res. 2400/1979 y Dec. 1072/2015.`;
+      r += `• Pausas Térmicas: ${state.totalBreaksTriggered}\n`;
+      r += `• Ingesta: ${state.consumedMl} ml (Meta: ${state.dailyGoalMl} ml)\n`;
+      r += `• Cumplimiento: ${Math.round((state.consumedMl / state.dailyGoalMl) * 100)}%\n`;
+      r += `• Nivel de Orina: ${state.lastUrineAssessment}\n`;
 
       const dummy = document.createElement('textarea');
       document.body.appendChild(dummy);
@@ -1250,7 +1337,8 @@
       document.execCommand('copy');
       document.body.removeChild(dummy);
 
-      showToast("Resumen Copiado", "Texto listo para compartir por WhatsApp o informe.", "📋");
+      showToast("Resumen Copiado", "Texto listo para informe.", "📋");
+      registrarEventoEnGoogleSheet("Registro Local", "Copia de Reporte", `Pausas: ${state.totalBreaksTriggered}, Vol: ${state.consumedMl}ml`);
     });
 
     document.getElementById('btnClearLog').addEventListener('click', () => {
@@ -1262,12 +1350,13 @@
       showToast("Registro Reiniciado", "Valores diarios en cero.");
     });
 
-    // Window Load Initialization
     window.onload = function() {
+      inicializarSesion();
       updateTimerUI();
       updateFlaskUI();
       recalculateDosage();
       generateDynamicQr();
+      procesarColaEventos();
     };
   </script>
 </body>
